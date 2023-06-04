@@ -64,7 +64,7 @@ export default function Home() {
   const withdrawBtn = async () => {
     const decentralizedBank = getDecentralizedBankContract();
     const tx = await decentralizedBank.withdraw();
-    await tx.wait(1);
+    await tx.wait(0);
     getWalletBalance();
     getBankBalance();
 
