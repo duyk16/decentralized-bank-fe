@@ -1,13 +1,12 @@
 "use client";
+import { ethers } from "ethers";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { ethers } from "ethers";
 
-import { Button } from "@/components/Button";
-import { shortenAddress } from "@/utils/wallet";
-import { DECENTRALIZED_BANK_ADDRESS } from "@/config/contract";
-import { decentralizedBankAbi } from "@/config/abi";
-import { DecentralizedBank } from "@/type/contract";
+import { Button } from "@/components";
+import { DECENTRALIZED_BANK_ADDRESS, decentralizedBankAbi } from "@/config";
+import { DecentralizedBank } from "@/type";
+import { shortenAddress } from "@/utils";
 
 export default function Home() {
   const [web3Provider, setWeb3Provider] = useState<ethers.BrowserProvider>();
@@ -53,7 +52,7 @@ export default function Home() {
   const depositBtn = async () => {
     const decentralizedBank = getDecentralizedBankContract();
     const tx = await decentralizedBank.deposit({
-      value: ethers.parseEther("1"),
+      value: ethers.parseEther("0.001"),
     });
     await tx.wait(1);
     getWalletBalance();
@@ -157,7 +156,7 @@ export default function Home() {
             <>
               <div className="flex-1">
                 <Button className="w-full" onClick={depositBtn}>
-                  Deposit (1 ETH)
+                  Deposit
                 </Button>
               </div>
               <div className="flex-1">
