@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gentype": "typechain --target ethers-v5 --out-dir src/type/contract 'src/config/abi/**/*.json'"
+    "gentype": "typechain --target ethers-v6 --out-dir src/type/contract 'src/config/abi/**/*.json'"
   },
   "dependencies": {
     "@types/node": "20.2.5",
@@ -25,7 +25,6 @@
     "web3": "^1.10.0"
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "^11.0.0",
     "@typechain/ethers-v6": "^0.3.3",
     "typechain": "^8.2.0"
   }

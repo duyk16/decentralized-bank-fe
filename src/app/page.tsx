@@ -55,8 +55,21 @@ export default function Home() {
     const tx = await decentralizedBank.deposit({
       value: ethers.parseEther("1"),
     });
+    await tx.wait(1);
     getWalletBalance();
     getBankBalance();
+
+    console.log(`Deposit success`);
+  };
+
+  const withdrawBtn = async () => {
+    const decentralizedBank = getDecentralizedBankContract();
+    const tx = await decentralizedBank.withdraw();
+    await tx.wait(1);
+    getWalletBalance();
+    getBankBalance();
+
+    console.log(`Widthdraw success`);
   };
 
   useEffect(() => {
@@ -148,7 +161,11 @@ export default function Home() {
                 </Button>
               </div>
               <div className="flex-1">
-                <Button className="w-full" variant="light">
+                <Button
+                  className="w-full"
+                  variant="light"
+                  onClick={withdrawBtn}
+                >
                   Withdraw
                 </Button>
               </div>

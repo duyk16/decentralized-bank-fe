@@ -3,34 +3,26 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "./common";
 
-export interface DecentralizedBankInterface extends utils.Interface {
-  functions: {
-    "deposit()": FunctionFragment;
-    "withdraw()": FunctionFragment;
-    "getBalance()": FunctionFragment;
-  };
-
+export interface DecentralizedBankInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic: "deposit" | "withdraw" | "getBalance"
+    nameOrSignature: "deposit" | "withdraw" | "getBalance"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
@@ -43,87 +35,71 @@ export interface DecentralizedBankInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
-
-  events: {};
 }
 
 export interface DecentralizedBank extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
+  connect(runner?: ContractRunner | null): BaseContract;
+  attach(addressOrName: AddressLike): this;
   deployed(): Promise<this>;
 
   interface: DecentralizedBankInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    deposit(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    withdraw(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
-  };
+  deposit: TypedContractMethod<[], [void], "payable">;
 
-  deposit(
-    overrides?: PayableOverrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  withdraw: TypedContractMethod<[], [void], "nonpayable">;
 
-  withdraw(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  getBalance: TypedContractMethod<[], [bigint], "view">;
 
-  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  callStatic: {
-    deposit(overrides?: CallOverrides): Promise<void>;
-
-    withdraw(overrides?: CallOverrides): Promise<void>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+  getFunction(
+    nameOrSignature: "deposit"
+  ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "withdraw"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getBalance"
+  ): TypedContractMethod<[], [bigint], "view">;
 
   filters: {};
-
-  estimateGas: {
-    deposit(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    withdraw(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    deposit(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    withdraw(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-  };
 }
